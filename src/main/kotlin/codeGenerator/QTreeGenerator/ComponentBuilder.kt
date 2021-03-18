@@ -4,6 +4,7 @@ import codeGenerator.CodeGenerator
 import codeGenerator.CodeGeneratorBuilder
 import parser.CompositeComponentNode
 import parser.Node
+import parser.SelectiveComponentNode
 import parser.SimpleComponentNode
 import java.lang.Exception
 
@@ -13,6 +14,7 @@ class ComponentBuilder {
              val node = when(node){
                  is SimpleComponentNode -> node
                  is CompositeComponentNode -> node
+                 is SelectiveComponentNode -> node
                  else -> throw Exception("ComponentBuilder Exception: Not a component " + node)
              }
 

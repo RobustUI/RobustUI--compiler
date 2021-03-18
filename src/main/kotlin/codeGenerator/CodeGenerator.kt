@@ -1,10 +1,11 @@
 package codeGenerator
 
 import parser.Node
-import java.io.File
-import javax.swing.text.html.parser.Parser
+import parser.SymbolContext
+import parser.Table
 
 interface CodeGenerator {
+    fun getSymbolContext(nodeName: String): SymbolContext
     fun generate(): String
     fun visit(node: Node): String
 }

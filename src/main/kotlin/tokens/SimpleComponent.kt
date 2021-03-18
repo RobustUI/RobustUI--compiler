@@ -1,10 +1,8 @@
 package tokens
 
 import kotlinx.serialization.Serializable
-import parser.Node
-import parser.Parser
-import parser.SimpleComponentNode
-import parser.SymbolContext
+import parser.*
+import java.util.*
 
 @Serializable
 data class SimpleComponent(
@@ -51,6 +49,28 @@ data class SimpleComponent(
             parser.symbolTable[renamed.from]!!.node.addChild(node)
         }
 
-        return root
+        var module = ModuleNode(UUID.randomUUID().toString())
+        var inputsStream: StreamNode = StreamNode(root.name + "_inputStream")
+        var outputsStream: StreamNode = StreamNode(root.name + "_outputStream")
+        var eventsStream: StreamNode = StreamNode(root.name + "_eventStream")
+
+        inputs.forEach {
+            inputsStream.addChild(IdentifierNode(it))
+        }
+
+        outputs.forEach {
+            outputsStream.addChild(IdentifierNode(it))
+        }
+
+        events.forEach {
+            eventsStream.addChild(IdentifierNode(it))
+        }
+
+        module.inputStreamNode = inputsStream
+        module.outputStreamNode = outputsStream
+        module.eventStreamNode = eventsStream
+        module.body = root
+
+        return module
     }
 }

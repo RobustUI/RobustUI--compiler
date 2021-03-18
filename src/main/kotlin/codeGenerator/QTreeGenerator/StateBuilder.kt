@@ -4,6 +4,7 @@ import codeGenerator.CodeGenerator
 import codeGenerator.CodeGeneratorBuilder
 import parser.Node
 import parser.StateNode
+import parser.SymbolContext
 
 
 class StateBuilder {
@@ -13,7 +14,15 @@ class StateBuilder {
 
             var code = ""
             val name = Helper.latexEscape(Helper.removePrefix(node.name))
-            code += "[.{\\sc ${node.type()}}({${name}}) "
+
+            val symbolContext: SymbolContext = generator.getSymbolContext(node.name)
+
+            if (symbolContext.initial) {
+                code += "[.{\\sc ${node.type()}}({${name}})* "
+            } else {
+                code += "[.{\\sc ${node.type()}}({${name}}) "
+            }
+
 
             node.children.forEach {
                 code += generator.visit(it)

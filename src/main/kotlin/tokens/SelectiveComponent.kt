@@ -2,6 +2,7 @@ package tokens
 
 import kotlinx.serialization.Serializable
 import parser.*
+import java.util.*
 
 @Serializable
 data class SelectiveComponent(
@@ -42,6 +43,22 @@ data class SelectiveComponent(
             node.addChild(caseNode)
         }
 
-        return node
+        var module = ModuleNode(UUID.randomUUID().toString())
+        var inputsStream: StreamNode = StreamNode(node.name + "_inputStream")
+        var outputsStream: StreamNode = StreamNode(node.name + "_outputStream")
+
+        inputs.forEach {
+            inputsStream.addChild(IdentifierNode(it))
+        }
+
+        outputs.forEach {
+            outputsStream.addChild(IdentifierNode(it))
+        }
+
+        module.inputStreamNode = inputsStream
+        module.outputStreamNode = outputsStream
+        module.body = node
+
+        return module
     }
 }

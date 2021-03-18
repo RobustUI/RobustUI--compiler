@@ -12,7 +12,6 @@ class CaseNode(name: String): Node(name) {
 
     fun setGuard(node: GuardNode) {
         _guard = node
-        children.add(node)
     }
 
     fun getGuard(): GuardNode {
@@ -21,7 +20,6 @@ class CaseNode(name: String): Node(name) {
 
     fun setComponent(node: Node) {
         _component = node
-        children.add(node)
     }
 
     fun getComponent(): Node {

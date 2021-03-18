@@ -1,9 +1,8 @@
 package tokens
 
 import kotlinx.serialization.Serializable
-import parser.CompositeComponentNode
-import parser.Node
-import parser.Parser
+import parser.*
+import java.util.*
 
 @Serializable
 data class CompositeComponent(
@@ -34,6 +33,22 @@ data class CompositeComponent(
             root.addChild(node)
         }
 
-        return root;
+        var module = ModuleNode(UUID.randomUUID().toString())
+        var inputsStream: StreamNode = StreamNode(root.name + "_inputStream")
+        var outputsStream: StreamNode = StreamNode(root.name + "_outputStream")
+
+        inputs.forEach {
+            inputsStream.addChild(IdentifierNode(it))
+        }
+
+        outputs.forEach {
+            outputsStream.addChild(IdentifierNode(it))
+        }
+
+        module.inputStreamNode = inputsStream
+        module.outputStreamNode = outputsStream
+        module.body = root
+
+        return module
     }
 }

@@ -19,8 +19,8 @@ fun main() {
 
     val parsedFiles: MutableList<JsonElement> = mutableListOf(
         Json.parseToJsonElement(murden),
-        Json.parseToJsonElement(a),
         Json.parseToJsonElement(selective),
+        Json.parseToJsonElement(a),
         Json.parseToJsonElement(mikkel),
         Json.parseToJsonElement(csgo)
     )
