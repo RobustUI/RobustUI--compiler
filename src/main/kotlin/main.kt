@@ -1,5 +1,6 @@
 import codeGenerator.CodeGenerator
 import codeGenerator.QTreeGenerator.QTreeGenerator
+import codeGenerator.TreantJSGenerator.TreantJSGenerator
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import parser.Parser
@@ -19,10 +20,10 @@ fun main() {
 
     val parsedFiles: MutableList<JsonElement> = mutableListOf(
         Json.parseToJsonElement(murden),
-        Json.parseToJsonElement(selective),
-        Json.parseToJsonElement(a),
+        Json.parseToJsonElement(csgo),
         Json.parseToJsonElement(mikkel),
-        Json.parseToJsonElement(csgo)
+        Json.parseToJsonElement(selective),
+        Json.parseToJsonElement(a)
     )
 
     val tokens: MutableMap<String, Token> = mutableMapOf()
@@ -41,9 +42,9 @@ fun main() {
 
     val parser = Parser(tokens)
 
-    val codeGenerator: CodeGenerator = QTreeGenerator(parser)
+    val codeGenerator: CodeGenerator = TreantJSGenerator(parser)
 
-    println(codeGenerator.generate())
+    File("/home/morten/Projects/trean-example/output.html").writeText(codeGenerator.generate())
 }
 
 fun readFileDirectlyAsText(fileName: String): String

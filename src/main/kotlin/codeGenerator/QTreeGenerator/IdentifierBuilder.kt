@@ -11,7 +11,6 @@ class IdentifierBuilder {
             var code = ""
             val name = Helper.latexEscape(Helper.removePrefix(node.name))
 
-
             code += "[.{\\sc ${node.type()}}({${name}}) "
 
             code += " ] "
