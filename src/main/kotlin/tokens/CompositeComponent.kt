@@ -27,6 +27,7 @@ data class CompositeComponent(
         parser.registerOutputs(outputs)
 
         components.forEach {
+            root.typeLookUpTable.put(it["label"]!!, it["type"]!!)
             parser.prefix = label
             val token = parser.getTokenFor(it["type"]!!)!!.rename(parser.addPrefix(it["label"]!!))
             val node = parser.parse(token)
@@ -34,8 +35,8 @@ data class CompositeComponent(
         }
 
         var module = ModuleNode(UUID.randomUUID().toString())
-        var inputsStream: StreamNode = StreamNode(root.name + "_inputStream")
-        var outputsStream: StreamNode = StreamNode(root.name + "_outputStream")
+        var inputsStream: StreamNode = StreamNode("inputs")
+        var outputsStream: StreamNode = StreamNode("outputs")
 
         inputs.forEach {
             inputsStream.addChild(IdentifierNode(it))

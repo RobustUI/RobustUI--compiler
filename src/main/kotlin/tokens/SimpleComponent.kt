@@ -50,9 +50,9 @@ data class SimpleComponent(
         }
 
         var module = ModuleNode(UUID.randomUUID().toString())
-        var inputsStream: StreamNode = StreamNode(root.name + "_inputStream")
-        var outputsStream: StreamNode = StreamNode(root.name + "_outputStream")
-        var eventsStream: StreamNode = StreamNode(root.name + "_eventStream")
+        var inputsStream: StreamNode = StreamNode("inputs")
+        var outputsStream: StreamNode = StreamNode("outputs")
+        var eventsStream: StreamNode = StreamNode("events")
 
         inputs.forEach {
             inputsStream.addChild(IdentifierNode(it))

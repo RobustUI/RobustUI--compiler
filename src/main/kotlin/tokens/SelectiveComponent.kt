@@ -44,8 +44,8 @@ data class SelectiveComponent(
         }
 
         var module = ModuleNode(UUID.randomUUID().toString())
-        var inputsStream: StreamNode = StreamNode(node.name + "_inputStream")
-        var outputsStream: StreamNode = StreamNode(node.name + "_outputStream")
+        var inputsStream: StreamNode = StreamNode("inputs")
+        var outputsStream: StreamNode = StreamNode("outputs")
 
         inputs.forEach {
             inputsStream.addChild(IdentifierNode(it))

@@ -1,5 +1,7 @@
 import codeGenerator.CodeGenerator
+import codeGenerator.CodeGeneratorFile
 import codeGenerator.QTreeGenerator.QTreeGenerator
+import codeGenerator.RobustUiTypescriptFrameworkGenerator.RobustUiTypescriptFrameworkGenerator
 import codeGenerator.TreantJSGenerator.TreantJSGenerator
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
@@ -17,13 +19,15 @@ fun main() {
     val a = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentA.json")
     val selective = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentI am Selective.json")
     val csgo = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentCSGO.json")
+    val onOffSimpleComponent = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentOnOffSimpleComponent.json")
+    val onOffAdapterComponent = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentOnOffAdapterComponent.json")
+    val otherOnOffSimpleComponent = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentOtherOnOffSimpleComponent.json")
+    val LightLockController = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentLightLockController.json")
 
     val parsedFiles: MutableList<JsonElement> = mutableListOf(
-        Json.parseToJsonElement(murden),
-        Json.parseToJsonElement(csgo),
-        Json.parseToJsonElement(mikkel),
-        Json.parseToJsonElement(selective),
-        Json.parseToJsonElement(a)
+        Json.parseToJsonElement(LightLockController),
+        Json.parseToJsonElement(onOffSimpleComponent),
+        Json.parseToJsonElement(onOffAdapterComponent)
     )
 
     val tokens: MutableMap<String, Token> = mutableMapOf()
@@ -42,9 +46,14 @@ fun main() {
 
     val parser = Parser(tokens)
 
-    val codeGenerator: CodeGenerator = TreantJSGenerator(parser)
+    val codeGenerator = RobustUiTypescriptFrameworkGenerator(parser)
+    val files = codeGenerator.generate()
 
-    File("/home/morten/Projects/trean-example/output.html").writeText(codeGenerator.generate())
+    files.forEach {
+        print(codeGenerator.buildFile(it))
+    }
+
+   //File("/home/morten/Projects/trean-example/output.html").writeText(codeGenerator.generate())
 }
 
 fun readFileDirectlyAsText(fileName: String): String
