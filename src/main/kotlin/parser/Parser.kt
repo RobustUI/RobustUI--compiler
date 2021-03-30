@@ -46,4 +46,3 @@ class Parser(val tokens: Map<String, Token>) {
         return prefix + nameDivider + target
     }
 }
-

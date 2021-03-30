@@ -6,18 +6,22 @@ import parser.CompositeComponentNode
 import parser.IdentifierNode
 import parser.ModuleNode
 import parser.Node
-import java.awt.event.InputEvent
 
 class CompositeComponentBuilder {
     companion object: CodeGeneratorFileBuilder {
         override fun build(node: Node, generator: CodeGeneratorFile) {
             val node = node as CompositeComponentNode
             val name = Helper.removePrefix(node.name)
+            var className = name
+            if (node.typeLookUpTable.containsKey(node.name)) {
+                className = Helper.removePrefix(node.typeLookUpTable.get(node.name)!!)
+            }
+            generator.addNewStateDeclarationGroupFor(name)
             val file = generator.getCurrentFile()
             file.openSection("topMainClass")
-            file.writeln("export class $name extends RobustUICompositeMachine{")
+            file.writeln("export class $className extends RobustUICompositeMachine{")
             file.increaseIdentLevel()
-            file.writeln("protected machines = new Map<${name}Machine, RobustUIMachine>();")
+            file.writeln("protected machines = new Map<${className}Machine, RobustUI>();")
             file.writeln("constructor() {")
             file.increaseIdentLevel()
             file.writeln("super();")
@@ -33,9 +37,14 @@ class CompositeComponentBuilder {
             file.writeln("}")
             file.closeSection("topMainClass")
             file.openSection("bottomMainClass")
-            file.writeln("public registerElement(machine: ${name}Machine, element: HTMLElement): void {")
+            file.writeln("public registerElement(element: HTMLElement, machine: ${className}Machine): void {")
             file.increaseIdentLevel()
             file.writeln("this.machines.get(machine).registerElement(element);")
+            file.decreaseIdentLevel()
+            file.writeln("}")
+            file.writeln("public unregisterElement(element: HTMLElement, machine: ${className}Machine): void {")
+            file.increaseIdentLevel()
+            file.writeln("this.machines.get(machine).unregisterElement(element);")
             file.decreaseIdentLevel()
             file.writeln("}")
             file.decreaseIdentLevel()
@@ -44,7 +53,7 @@ class CompositeComponentBuilder {
 
 
             file.openSection("declarations")
-            file.write("export type ${name}Machine = ")
+            file.write("export type ${className}Machine = ")
 
             var machines = ""
             node.children.forEach {
@@ -57,6 +66,18 @@ class CompositeComponentBuilder {
             file.writeln(machines)
 
             file.closeSection("declarations")
+
+
+            node.children.forEach {
+                val child = it as ModuleNode
+                val fileName = node.typeLookUpTable[Helper.removePrefix(child.body.name)]!!
+
+                if (!generator.fileExists(fileName)) {
+                    child.body.typeLookUpTable.put(child.body.name, fileName)
+                    generator.visit(it)
+                }
+            }
+            generator.closeCurrentStateDeclarationGroup()
         }
 
         private fun  connectCommunication(children: List<ModuleNode>, file: OutputFile, lookUpTable: MutableMap<String, String>) {

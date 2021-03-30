@@ -12,7 +12,7 @@ class StateBuilder {
             var name = Helper.removePrefix(node.name)
             val file = generator.getCurrentFile()
 
-            generator.states.add(name)
+            generator.addStateDeclaration(name)
 
             file.writeln("{")
             file.increaseIdentLevel()

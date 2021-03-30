@@ -2,7 +2,6 @@ package tokens
 
 import kotlinx.serialization.Serializable
 import parser.*
-import java.util.*
 
 @Serializable
 data class SimpleComponent(
@@ -15,11 +14,22 @@ data class SimpleComponent(
     val outputs: List<String>,
     val transitions: List<Transition>
 ): Token() {
+
+    var originalName: String? = null
+
+    init {
+        if (originalName == null) {
+            originalName = label
+        }
+    }
+
     override val name: String
         get () = label
 
     override fun rename(name: String): SimpleComponent {
-       return this.copy(label = name)
+        val copy = this.copy(label = name)
+        copy.originalName = originalName
+        return copy
     }
 
     override fun accept (parser: Parser): Node {
@@ -49,7 +59,7 @@ data class SimpleComponent(
             parser.symbolTable[renamed.from]!!.node.addChild(node)
         }
 
-        var module = ModuleNode(UUID.randomUUID().toString())
+        var module = ModuleNode(this.originalName!!)
         var inputsStream: StreamNode = StreamNode("inputs")
         var outputsStream: StreamNode = StreamNode("outputs")
         var eventsStream: StreamNode = StreamNode("events")

@@ -2,7 +2,6 @@ package codeGenerator.RobustUiTypescriptFrameworkGenerator
 
 import codeGenerator.CodeGeneratorFile
 import codeGenerator.CodeGeneratorFileBuilder
-import codeGenerator.RobustUiTypescriptFrameworkGenerator.boilerplates.MainClassExtraBody
 import parser.ModuleNode
 import parser.Node
 
@@ -19,6 +18,12 @@ class ModuleBuilder {
 
             generator.visit(node.outputStreamNode)
             generator.visit(node.inputStreamNode)
+
+            if (node.eventStreamNode != null) {
+                generator.visit(node.eventStreamNode!!)
+            } else {
+                file.writeln("public events: StreamDeclaration[] = [];")
+            }
 
             file.closeSection("middleMainClass")
 

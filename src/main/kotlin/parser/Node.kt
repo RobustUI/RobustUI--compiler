@@ -3,9 +3,9 @@ package parser
 import kotlin.reflect.typeOf
 
 abstract class Node (
-    val name: String, // Label
+    var name: String, // Label
  ) {
-
+    val typeLookUpTable: MutableMap<String, String> = mutableMapOf()
     var parent: Node? = null
     var children: MutableList<Node> = mutableListOf()
 

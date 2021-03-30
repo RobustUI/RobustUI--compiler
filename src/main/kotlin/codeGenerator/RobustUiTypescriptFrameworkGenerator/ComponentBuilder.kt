@@ -11,11 +11,16 @@ class ComponentBuilder {
         override fun build(node: Node, generator: CodeGeneratorFile) {
             val node = node as SimpleComponentNode
             val name = Helper.removePrefix(node.name)
-            val initialState = Helper.removePrefix(generator.getInitialState())
+            var className = name
+            if (node.typeLookUpTable.containsKey(node.name)) {
+                className = Helper.removePrefix(node.typeLookUpTable.get(node.name)!!)
+            }
+            generator.addNewStateDeclarationGroupFor(name)
+            val initialState = Helper.removePrefix(generator.getInitialState(name))
             val file = generator.getCurrentFile()
             generator.getMessageTableFor(node.name, "EventMessage")
             file.openSection("topMainClass")
-            file.writeln("export class $name extends RobustUIMachine{")
+            file.writeln("export class $className extends RobustUIMachine{")
             file.writeln("private states: StateDeclaration[] = [")
             file.increaseIdentLevel()
             node.children.forEach {
@@ -29,24 +34,25 @@ class ComponentBuilder {
             file.openSection("bottomMainClass")
             var events: List<String> = generator.getMessageTableFor(node.name, "EventMessage")
 
-            events = events.map { Helper.removePrefix(it).split('/')[0] }
+            events = events.map { Helper.removePrefix(it).split('/')[0] }.distinct()
 
-            file.writeln(MainClassExtraBody.generate(name, events))
+            file.writeln(MainClassExtraBody.generate(className, events))
 
             file.writeln("}")
             file.closeSection("bottomMainClass")
 
             file.openSection("declarations")
-            file.write("export type ${name}State = ")
+            file.write("export type ${className}State = ")
             var states = ""
-            generator.states.forEach {
+
+            generator.states.get(name)!!.forEach {
                 states +="\"$it\" | "
             }
             states = states.dropLast(3)
             states += ";"
             file.writeln(states)
 
-            file.write("export type ${name}OutputStreams = ")
+            file.write("export type ${className}OutputStreams = ")
 
 
             var outputsMessages: List<String> = generator.getMessageTableFor(node.name, "OutputMessage")
@@ -64,6 +70,7 @@ class ComponentBuilder {
             outputs += ";"
             file.writeln(outputs)
             file.closeSection("declarations")
+            generator.closeCurrentStateDeclarationGroup()
         }
     }
 }

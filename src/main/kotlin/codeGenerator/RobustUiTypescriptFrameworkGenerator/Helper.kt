@@ -7,5 +7,9 @@ class Helper {
         fun removePrefix(string: String): String {
             return string.split(divider).last()
         }
+
+        fun removeWhitespace(string: String): String {
+            return string.replace(" ", "")
+        }
     }
 }

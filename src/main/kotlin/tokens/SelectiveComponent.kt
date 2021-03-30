@@ -13,11 +13,21 @@ data class SelectiveComponent(
     val inputs: List<String>,
     val outputs: List<String>,
 ): Token() {
+    var originalName: String? = null
+
+    init {
+        if (originalName == null) {
+            originalName = label
+        }
+    }
+
     override val name: String
         get() = label
 
     override fun rename(name: String): SelectiveComponent {
-        return this.copy(label = name)
+        val copy = this.copy(label = name)
+        copy.originalName = originalName
+        return copy
     }
 
     override fun accept(parser: Parser): Node {
@@ -31,8 +41,9 @@ data class SelectiveComponent(
         val stream = observer["input"]!!
 
         cases.forEach {
+            node.typeLookUpTable.put(it["label"]!!, it["type"]!!)
             parser.prefix = label
-            val token = parser.getTokenFor(it["type"]!!)!!.rename(parser.addPrefix(it["type"]!!))
+            val token = parser.getTokenFor(it["type"]!!)!!.rename(parser.addPrefix(it["label"]!!))
             val caseNode = CaseNode(token.name + "-Case")
             val guardNode = GuardNode(caseNode.name + "-Expression")
             guardNode.stream = stream
@@ -43,7 +54,7 @@ data class SelectiveComponent(
             node.addChild(caseNode)
         }
 
-        var module = ModuleNode(UUID.randomUUID().toString())
+        var module = ModuleNode(this.originalName!!)
         var inputsStream: StreamNode = StreamNode("inputs")
         var outputsStream: StreamNode = StreamNode("outputs")
 

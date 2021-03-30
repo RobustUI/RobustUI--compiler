@@ -1,6 +1,5 @@
 package codeGenerator.RobustUiTypescriptFrameworkGenerator
 
-import codeGenerator.CodeGenerator
 import codeGenerator.CodeGeneratorFile
 import parser.*
 import java.lang.Exception
@@ -11,20 +10,42 @@ class RobustUiTypescriptFrameworkGenerator(val parser: Parser): CodeGeneratorFil
         Helper.divider = parser.nameDivider
     }
 
-    override val states: MutableList<String> = mutableListOf()
-    private val files: MutableList<OutputFile> = mutableListOf()
+    override val states: MutableMap<String, MutableList<String>> = mutableMapOf()
+    private val files: MutableMap<String, OutputFile> = mutableMapOf()
     private val openedFiles: Stack<OutputFile> = Stack()
+    private var currentStateList: Stack<MutableList<String>> = Stack()
+
+    override fun addNewStateDeclarationGroupFor(name: String) {
+        this.states.put(name, mutableListOf())
+        this.currentStateList.push(this.states.get(name)!!)
+    }
+
+    override fun addStateDeclaration(state: String) {
+        this.currentStateList.peek().add(state)
+    }
+
+    override fun closeCurrentStateDeclarationGroup() {
+        this.currentStateList.pop()
+    }
 
     override fun getSymbolContext(nodeName: String): SymbolContext {
         return parser.symbolTable.get(nodeName)!!.copy()
     }
 
-    override fun getInitialState(): String {
-        val foo =  parser.symbolTable.filter { it.value.initial };
-        return foo.keys.first()
+    override fun getInitialState(name: String): String {
+        val initialStateList =  parser.symbolTable.filter {
+            val keySplit = it.key.split(Helper.divider)
+
+            if (keySplit.size > 2) {
+                keySplit[keySplit.size - 2] == name && it.value.initial
+            } else {
+                keySplit[0] == name && it.value.initial
+            }
+        }
+        return initialStateList.keys.first()
     }
 
-    override fun generate(): List<OutputFile> {
+    override fun generate(): Map<String, OutputFile> {
         visit(parser.root)
 
         return files
@@ -70,7 +91,7 @@ class RobustUiTypescriptFrameworkGenerator(val parser: Parser): CodeGeneratorFil
             is ModuleNode -> ModuleBuilder.build(node,this)
             is SimpleComponentNode -> ComponentBuilder.build(node, this)
             is CompositeComponentNode -> CompositeComponentBuilder.build(node, this)
-            is SelectiveComponentNode -> ComponentBuilder.build(node, this)
+            is SelectiveComponentNode -> SelectiveComponentBuilder.build(node, this)
             is StateNode -> StateBuilder.build(node, this)
             is TransitionNode -> TransitionBuilder.build(node, this)
             is CaseNode -> CaseNodeBuilder.build(node, this)
@@ -82,14 +103,14 @@ class RobustUiTypescriptFrameworkGenerator(val parser: Parser): CodeGeneratorFil
 
     override fun createNewFile(fileName: String): OutputFile {
         val newfile = OutputFile(fileName)
-        files.add(newfile)
+        files.set(fileName, newfile)
         openedFiles.push(newfile)
         return getCurrentFile()
     }
 
     override fun closeCurrentFile() {
         openedFiles.peek().closeCurrentSection()
-       openedFiles.pop()
+        openedFiles.pop()
     }
 
     override fun getCurrentFile(): OutputFile {
@@ -101,5 +122,9 @@ class RobustUiTypescriptFrameworkGenerator(val parser: Parser): CodeGeneratorFil
             it.key.split(componentIdentifier+this.parser.nameDivider).size == 2 &&
             it.value.equals(type, ignoreCase = true)
         }.map { it.key }
+    }
+
+    override fun fileExists(fileName: String): Boolean {
+        return files.containsKey(fileName)
     }
 }

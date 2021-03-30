@@ -1,6 +1,5 @@
 package codeGenerator
 
-import codeGenerator.RobustUiTypescriptFrameworkGenerator.OutputFile
 import parser.Node
 
 interface CodeGeneratorFileBuilder {

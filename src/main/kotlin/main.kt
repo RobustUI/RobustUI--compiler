@@ -12,6 +12,7 @@ import tokens.SimpleComponent
 import tokens.Token
 import java.io.File
 import java.lang.Error
+import java.util.*
 
 fun main() {
     val murden = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentMurden.json")
@@ -26,8 +27,14 @@ fun main() {
 
     val parsedFiles: MutableList<JsonElement> = mutableListOf(
         Json.parseToJsonElement(LightLockController),
+        Json.parseToJsonElement(selective),
+        Json.parseToJsonElement(otherOnOffSimpleComponent),
+        Json.parseToJsonElement(murden),
+        Json.parseToJsonElement(mikkel),
+        Json.parseToJsonElement(a),
+        Json.parseToJsonElement(csgo),
         Json.parseToJsonElement(onOffSimpleComponent),
-        Json.parseToJsonElement(onOffAdapterComponent)
+        Json.parseToJsonElement(onOffAdapterComponent),
     )
 
     val tokens: MutableMap<String, Token> = mutableMapOf()
@@ -50,7 +57,7 @@ fun main() {
     val files = codeGenerator.generate()
 
     files.forEach {
-        print(codeGenerator.buildFile(it))
+        print(codeGenerator.buildFile(it.value))
     }
 
    //File("/home/morten/Projects/trean-example/output.html").writeText(codeGenerator.generate())

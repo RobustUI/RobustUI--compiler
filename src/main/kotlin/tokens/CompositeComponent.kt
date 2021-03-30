@@ -12,11 +12,21 @@ data class CompositeComponent(
     val inputs: List<String>,
     val outputs: List<String>
 ): Token() {
+    var originalName: String? = null
+
+    init {
+        if (originalName == null) {
+            originalName = label
+        }
+    }
+
     override val name: String
         get() = label
 
     override fun rename(name: String): CompositeComponent {
-        return this.copy(label = name)
+        val copy = this.copy(label = name)
+        copy.originalName = originalName
+        return copy
     }
 
     override fun accept(parser: Parser): Node {
@@ -34,7 +44,7 @@ data class CompositeComponent(
             root.addChild(node)
         }
 
-        var module = ModuleNode(UUID.randomUUID().toString())
+        var module = ModuleNode(this.originalName!!)
         var inputsStream: StreamNode = StreamNode("inputs")
         var outputsStream: StreamNode = StreamNode("outputs")
 
