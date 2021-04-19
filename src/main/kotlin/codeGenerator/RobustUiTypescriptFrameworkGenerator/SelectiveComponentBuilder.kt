@@ -52,8 +52,10 @@ class SelectiveComponentBuilder {
                 }
             }
             if (initialCase != null) {
+                var label = Helper.removePrefix((initialCase!!.getComponent() as ModuleNode).body.name)
+
                 file.writeln(" else {")
-                file.writeln("this.switchMachine('${initialCase!!.getComponent().name}')")
+                file.writeln("this.switchMachine('${label}')")
                 file.writeln("}")
             }
             file.decreaseIdentLevel()
