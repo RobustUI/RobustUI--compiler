@@ -5,8 +5,8 @@ class MainClassExtraBody {
         fun generate(className: String, events: List<String>): String {
             var content = "protected machineDeclaration: MachineDeclaration;\n" +
                     "\n" +
-                    "    constructor() {\n" +
-                    "        super();\n" +
+                    "    constructor(name: string) {\n" +
+                    "        super(name);\n" +
                     "\n" +
                     "        this.machineDeclaration = {\n" +
                     "            initialState: this.initialState,\n" +

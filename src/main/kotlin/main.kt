@@ -15,26 +15,19 @@ import java.lang.Error
 import java.util.*
 
 fun main() {
-    val murden = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentMurden.json")
-    val mikkel = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentMikkel.json")
-    val a = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentA.json")
-    val selective = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentI am Selective.json")
-    val csgo = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentCSGO.json")
-    val onOffSimpleComponent = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentOnOffSimpleComponent.json")
-    val onOffAdapterComponent = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentOnOffAdapterComponent.json")
-    val otherOnOffSimpleComponent = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentOtherOnOffSimpleComponent.json")
-    val LightLockController = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentLightLockController.json")
+    val onOff = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentonOffComponent.json")
+    val onOffAdapter = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentonOffAdapter.json")
+    val selective = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentLightLockSelective.json")
+    val lightLockController = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentLightLockController.json")
+    val main = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentLightLockControllerWithControls.json")
+
 
     val parsedFiles: MutableList<JsonElement> = mutableListOf(
-        Json.parseToJsonElement(LightLockController),
+        Json.parseToJsonElement(main),
+        Json.parseToJsonElement(onOff),
+        Json.parseToJsonElement(onOffAdapter),
         Json.parseToJsonElement(selective),
-        Json.parseToJsonElement(otherOnOffSimpleComponent),
-        Json.parseToJsonElement(murden),
-        Json.parseToJsonElement(mikkel),
-        Json.parseToJsonElement(a),
-        Json.parseToJsonElement(csgo),
-        Json.parseToJsonElement(onOffSimpleComponent),
-        Json.parseToJsonElement(onOffAdapterComponent),
+        Json.parseToJsonElement(lightLockController),
     )
 
     val tokens: MutableMap<String, Token> = mutableMapOf()

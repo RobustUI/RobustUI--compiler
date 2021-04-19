@@ -2,30 +2,36 @@ package codeGenerator.RobustUiTypescriptFrameworkGenerator
 
 import codeGenerator.CodeGeneratorFile
 import codeGenerator.CodeGeneratorFileBuilder
-import parser.CaseNode
-import parser.ModuleNode
-import parser.Node
-import parser.SelectiveComponentNode
+import parser.*
 
 class SelectiveComponentBuilder {
     companion object: CodeGeneratorFileBuilder  {
         override fun build(node: Node, generator: CodeGeneratorFile) {
             val node = node as SelectiveComponentNode
             val name = Helper.removePrefix(Helper.removeWhitespace(node.name))
+            var className = name
+            if (node.typeLookUpTable.containsKey(node.name)) {
+                className = Helper.removePrefix(node.typeLookUpTable.get(node.name)!!)
+            }
             generator.addNewStateDeclarationGroupFor(name)
             val file = generator.getCurrentFile()
             file.openSection("topMainClass")
-            file.writeln("export class $name extends RobustUISelectiveMachine{")
+            file.writeln("export class $className extends RobustUISelectiveMachine{")
             file.increaseIdentLevel()
-            file.writeln("protected machines = new Map<${name}Machines, RobustUI>();")
+            file.writeln("protected machines = new Map<${className}Machines, RobustUI>();")
             file.writeln("constructor() {")
             file.increaseIdentLevel()
             file.writeln("super();")
             node.children.forEach {
                 var child = it as CaseNode
                 var label = Helper.removePrefix((child.getComponent() as ModuleNode).body.name)
+                var isSimpelComp = (child.getComponent() as ModuleNode).body is SimpleComponentNode
                 var className = node.typeLookUpTable[label]!!
-                file.writeln("this.machines.set(\"$label\", new $className());")
+                if (isSimpelComp) {
+                    file.writeln("this.machines.set(\"$label\", new $className(\"$label\"));")
+                } else {
+                    file.writeln("this.machines.set(\"$label\", new $className());")
+                }
             }
             file.writeln("this.initialize();")
             file.writeln("this.inputStream.subscribe(value => {")
@@ -54,13 +60,13 @@ class SelectiveComponentBuilder {
 
             file.openSection("bottomMainClass")
 
-            file.writeln("public get onMachineSwitch(): Observable<${name}Machines> {")
+            file.writeln("public get onMachineSwitch(): Observable<${className}Machines> {")
             file.increaseIdentLevel()
-            file.writeln("return this.machineSwitchStream as Observable<${name}Machines>");
+            file.writeln("return this.machineSwitchStream as Observable<${className}Machines>");
             file.decreaseIdentLevel()
             file.writeln("}")
 
-            file.writeln("public onNewConfiguration(machine: ${name}Machines): Observable<string | Map<string, string>> {")
+            file.writeln("public onNewConfiguration(machine: ${className}Machines): Observable<Configuration[]> {")
             file.increaseIdentLevel()
             file.writeln("return super.onNewConfiguration(machine)");
             file.decreaseIdentLevel()
@@ -72,28 +78,16 @@ class SelectiveComponentBuilder {
             file.decreaseIdentLevel()
             file.writeln("}")
 
-            file.writeln("public registerElement(element: HTMLElement, machineName: ${name}Machines): void {")
-            file.increaseIdentLevel()
-            file.writeln("super.registerElement(element, machineName);")
-            file.decreaseIdentLevel()
-            file.writeln("}")
             file.decreaseIdentLevel()
             file.writeln("}")
             file.closeSection("bottomMainClass")
 
 
             file.openSection("declarations")
-            file.write("export type ${name}Machines = ")
+            file.write("export type ${className}Machines = ")
 
-            var machines = ""
-            node.children.forEach {
-                var child = it as CaseNode
-                var label = Helper.removePrefix((child.getComponent() as ModuleNode).body.name)
-                machines += "\"$label\" | "
-            }
-            machines = machines.dropLast(3)
-            machines += ";"
-            file.writeln(machines)
+
+            file.writeln(getMachineDeclarations(node))
 
             file.closeSection("declarations")
 
@@ -108,6 +102,47 @@ class SelectiveComponentBuilder {
             }
 
             generator.closeCurrentStateDeclarationGroup()
+        }
+
+        private fun getMachineDeclarations(node: Node): String {
+            var machines = ""
+
+            node.children.forEach {
+                var child = it as CaseNode
+                var label = Helper.removePrefix((child.getComponent() as ModuleNode).body.name)
+                machines += "\"$label\" | "
+                machines += travelMachineDeclarations((child.getComponent() as ModuleNode).body, label)
+            }
+
+            machines = machines.dropLast(3)
+            machines += ";"
+
+            return machines
+        }
+
+        private fun travelMachineDeclarations(node: Node, namespace: String): String {
+            var machines = ""
+
+            if (isAComponent(node)) {
+                node.children.forEach {
+                    var child = when(it) {
+                        is ModuleNode -> it.body
+                        is CaseNode -> (it.getComponent() as ModuleNode).body
+                        else -> it
+                    }
+                    if (isAComponent(child)) {
+                        var label = Helper.removePrefix(child.name)
+                        machines += "\"$namespace::$label\" | "
+                        machines += travelMachineDeclarations(child, "$namespace::$label")
+                    }
+                }
+            }
+
+            return machines
+        }
+
+        private fun isAComponent(node: Node): Boolean {
+            return (node is SimpleComponentNode) || (node is CompositeComponentNode) || (node is SelectiveComponentNode);
         }
 
     }
