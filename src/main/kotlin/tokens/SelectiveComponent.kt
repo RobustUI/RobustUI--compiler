@@ -2,12 +2,12 @@ package tokens
 
 import kotlinx.serialization.Serializable
 import parser.*
-import java.util.*
 
 @Serializable
 data class SelectiveComponent(
     val label: String,
     val type: Int,
+    val initialCase: String,
     val observer: Map<String, String>,
     val cases: List<Map<String, String>>,
     val inputs: List<String>,
@@ -50,7 +50,7 @@ data class SelectiveComponent(
             guardNode.gaurd = it["guard"]!!
             caseNode.setGuard(guardNode)
             caseNode.setComponent(parser.parse(token))
-
+            caseNode.setInitial(it["label"]!! == initialCase);
             node.addChild(caseNode)
         }
 
