@@ -3,6 +3,8 @@ import codeGenerator.CodeGeneratorFile
 import codeGenerator.QTreeGenerator.QTreeGenerator
 import codeGenerator.RobustUiTypescriptFrameworkGenerator.RobustUiTypescriptFrameworkGenerator
 import codeGenerator.TreantJSGenerator.TreantJSGenerator
+import com.xenomachina.argparser.ArgParser
+import com.xenomachina.argparser.mainBody
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import parser.Parser
@@ -11,24 +13,35 @@ import tokens.SelectiveComponent
 import tokens.SimpleComponent
 import tokens.Token
 import java.io.File
+import java.io.FilenameFilter
 import java.lang.Error
+import java.lang.Exception
 import java.util.*
 
-fun main() {
-    val onOff = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentonOffComponent.json")
-    val onOffAdapter = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentonOffAdapter.json")
-    val selective = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentLightLockSelective.json")
-    val lightLockController = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentLightLockController.json")
-    val main = readFileDirectlyAsText("/home/morten/Projects/RobustUI-electron/src/app/JSON/componentLightLockControllerWithControls.json")
+fun main(args: Array<String>) = mainBody {
+    val parsedArgs = ArgParser(args).parseInto(::RunArguments)
 
+    val parsedFiles: MutableList<JsonElement> = mutableListOf()
 
-    val parsedFiles: MutableList<JsonElement> = mutableListOf(
-        Json.parseToJsonElement(main),
-        Json.parseToJsonElement(onOff),
-        Json.parseToJsonElement(onOffAdapter),
-        Json.parseToJsonElement(selective),
-        Json.parseToJsonElement(lightLockController),
-    )
+    parsedArgs.run {
+        if (includeDir.isDirectory) {
+            val mainFile = includeDir.listFiles { directory, filename ->
+                filename == mainComponent
+            }?.firstOrNull()
+
+            if (mainFile == null) {
+                throw Exception("Could not locate the file '$mainComponent' in the include directory '$includeDir'")
+            }
+
+            parsedFiles.add(Json.parseToJsonElement(mainFile.absoluteFile.readText(Charsets.UTF_8)))
+
+            includeDir.listFiles()?.forEach {
+                if (it.isFile && it.name != mainComponent && it.extension == "json") {
+                    parsedFiles.add(Json.parseToJsonElement(it.absoluteFile.readText(Charsets.UTF_8)))
+                }
+            }
+        }
+    }
 
     val tokens: MutableMap<String, Token> = mutableMapOf()
 
@@ -55,10 +68,5 @@ fun main() {
 
    //File("/home/morten/Projects/trean-example/output.html").writeText(codeGenerator.generate())
 }
-
-fun readFileDirectlyAsText(fileName: String): String
-        = File(fileName).readText(Charsets.UTF_8)
-
-
 
 
