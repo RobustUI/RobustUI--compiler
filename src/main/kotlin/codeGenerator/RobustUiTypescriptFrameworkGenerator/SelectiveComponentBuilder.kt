@@ -38,19 +38,31 @@ class SelectiveComponentBuilder {
             file.increaseIdentLevel()
             val numOfCases = node.children.size
             var currentCase = 0
+            var initialCase: CaseNode? = null
             node.children.forEach {
                 currentCase++
                 var child = it as CaseNode
                 var label = Helper.removePrefix((child.getComponent() as ModuleNode).body.name)
-                file.writeln("if (value ${child.getGuard().gaurd}) {")
-                file.increaseIdentLevel()
-                file.writeln("this.switchMachine('$label')")
-                file.decreaseIdentLevel()
-                if (currentCase < numOfCases) {
-                    file.write("} else ")
+                if (!child.isInitial()) {
+                    file.writeln("if (value ${child.getGuard().gaurd}) {")
+                    file.increaseIdentLevel()
+                    file.writeln("this.switchMachine('$label')")
+                    file.decreaseIdentLevel()
+                    if (currentCase < numOfCases) {
+                        file.write("} else ")
+                    } else {
+                        file.writeln("}")
+                    }
                 } else {
-                    file.writeln("}")
+                    initialCase = child
                 }
+            }
+            if (initialCase != null) {
+                var label = Helper.removePrefix((initialCase!!.getComponent() as ModuleNode).body.name)
+
+                file.writeln(" else {")
+                file.writeln("this.switchMachine('${label}')")
+                file.writeln("}")
             }
             file.decreaseIdentLevel()
             file.writeln("});")

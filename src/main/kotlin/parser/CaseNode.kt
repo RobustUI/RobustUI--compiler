@@ -5,6 +5,7 @@ import java.lang.Exception
 class CaseNode(name: String): Node(name) {
     private lateinit var _guard: GuardNode
     private lateinit var _component: Node
+    private var _initial: Boolean = false
 
     override fun type(): String {
         return "CaseNode"
@@ -24,6 +25,14 @@ class CaseNode(name: String): Node(name) {
 
     fun getComponent(): Node {
         return _component
+    }
+
+    fun setInitial(initial: Boolean) {
+        _initial = initial
+    }
+
+    fun isInitial(): Boolean {
+        return _initial
     }
 
     override fun addChild(node: Node) {
