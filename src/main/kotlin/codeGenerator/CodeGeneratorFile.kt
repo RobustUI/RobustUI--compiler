@@ -4,7 +4,7 @@ import codeGenerator.RobustUiTypescriptFrameworkGenerator.OutputFile
 import parser.Node
 import parser.SymbolContext
 
-interface CodeGeneratorFile {
+interface CodeGeneratorFile: GenericGenerator {
     val states: MutableMap<String, MutableList<String>>
     fun addStateDeclaration(state: String)
     fun addNewStateDeclarationGroupFor(name: String)

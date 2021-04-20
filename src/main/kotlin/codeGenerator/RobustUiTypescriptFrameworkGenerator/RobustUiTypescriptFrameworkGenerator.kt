@@ -127,4 +127,15 @@ class RobustUiTypescriptFrameworkGenerator(val parser: Parser): CodeGeneratorFil
     override fun fileExists(fileName: String): Boolean {
         return files.containsKey(fileName)
     }
+
+    override fun compileOutputAsString(): String {
+        var result = ""
+        val files = this.generate()
+
+        files.forEach {
+            result += this.buildFile(it.value);
+        }
+
+        return result
+    }
 }

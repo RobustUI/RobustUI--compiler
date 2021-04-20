@@ -20,10 +20,11 @@ import java.util.*
 
 fun main(args: Array<String>) = mainBody {
     val parsedArgs = ArgParser(args).parseInto(::RunArguments)
-
+    var generator: String? = null
     val parsedFiles: MutableList<JsonElement> = mutableListOf()
 
     parsedArgs.run {
+        generator = target
         if (includeDir.isDirectory) {
             val mainFile = includeDir.listFiles { directory, filename ->
                 filename == mainComponent
@@ -59,14 +60,14 @@ fun main(args: Array<String>) = mainBody {
 
     val parser = Parser(tokens)
 
-    val codeGenerator = RobustUiTypescriptFrameworkGenerator(parser)
-    val files = codeGenerator.generate()
 
-    files.forEach {
-        print(codeGenerator.buildFile(it.value))
+
+    val codeGenerator = when(generator) {
+        "typescript" -> RobustUiTypescriptFrameworkGenerator(parser)
+        "treeant" -> TreantJSGenerator(parser)
+        "qtree" -> QTreeGenerator(parser)
+        else -> throw Exception("Unknown Target !")
     }
 
-   //File("/home/morten/Projects/trean-example/output.html").writeText(codeGenerator.generate())
+    println(codeGenerator.compileOutputAsString())
 }
-
-

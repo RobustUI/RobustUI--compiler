@@ -34,4 +34,8 @@ class QTreeGenerator(val parser: Parser): CodeGenerator {
             else -> throw Exception("QTreeGenerator Exception: Could not code generate: $node")
         }
     }
+
+    override fun compileOutputAsString(): String {
+        return this.generate();
+    }
 }

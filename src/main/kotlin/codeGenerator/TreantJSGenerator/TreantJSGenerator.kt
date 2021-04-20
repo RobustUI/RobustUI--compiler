@@ -44,4 +44,8 @@ class TreantJSGenerator(val parser: Parser): CodeGenerator {
             else -> throw Exception("TreantJS Exception: Could not code generate: $node")
         }
     }
+
+    override fun compileOutputAsString(): String {
+        return this.generate();
+    }
 }
