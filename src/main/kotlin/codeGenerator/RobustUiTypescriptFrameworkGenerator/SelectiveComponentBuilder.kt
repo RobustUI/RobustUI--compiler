@@ -48,7 +48,7 @@ class SelectiveComponentBuilder {
                     file.increaseIdentLevel()
                     file.writeln("this.switchMachine('$label')")
                     file.decreaseIdentLevel()
-                    if (currentCase < numOfCases) {
+                    if (currentCase < numOfCases - 1) {
                         file.write("} else ")
                     } else {
                         file.writeln("}")
