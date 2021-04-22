@@ -10,13 +10,13 @@ class ComponentBuilder {
     companion object: CodeGeneratorFileBuilder {
         override fun build(node: Node, generator: CodeGeneratorFile) {
             val node = node as SimpleComponentNode
-            val name = Helper.removePrefix(node.name)
+            val name = Helper.removePrefixAndWhiteSpace(node.name)
             var className = name
             if (node.typeLookUpTable.containsKey(node.name)) {
-                className = Helper.removePrefix(node.typeLookUpTable.get(node.name)!!)
+                className = Helper.removePrefixAndWhiteSpace(node.typeLookUpTable.get(node.name)!!)
             }
             generator.addNewStateDeclarationGroupFor(name)
-            val initialState = Helper.removePrefix(generator.getInitialState(name))
+            val initialState = Helper.removePrefixAndWhiteSpace(generator.getInitialState(name))
             val file = generator.getCurrentFile()
             generator.getMessageTableFor(node.name, "EventMessage")
             file.openSection("topMainClass")
@@ -34,7 +34,7 @@ class ComponentBuilder {
             file.openSection("bottomMainClass")
             var events: List<String> = generator.getMessageTableFor(node.name, "EventMessage")
 
-            events = events.map { Helper.removePrefix(it).split('/')[0] }.distinct()
+            events = events.map { Helper.removePrefixAndWhiteSpace(it).split('/')[0] }.distinct()
 
             file.writeln(MainClassExtraBody.generate(className, events))
 
@@ -60,7 +60,7 @@ class ComponentBuilder {
             var outputs = ""
             if (outputsMessages.isNotEmpty()) {
                 outputsMessages.forEach {
-                    outputs += "\"${Helper.removePrefix(it)}\" | "
+                    outputs += "\"${Helper.removePrefixAndWhiteSpace(it)}\" | "
                 }
                 outputs = outputs.dropLast(3)
             } else {

@@ -9,7 +9,7 @@ class StreamBuilder {
     companion object: CodeGeneratorFileBuilder {
         override fun build(node: Node, generator: CodeGeneratorFile) {
             val node = node as StreamNode
-            val name = Helper.removePrefix(node.name)
+            val name = Helper.removePrefixAndWhiteSpace(node.name)
             val file = generator.getCurrentFile()
 
 

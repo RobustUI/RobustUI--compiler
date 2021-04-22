@@ -10,7 +10,7 @@ class IdentifierBuilder {
         override fun build(node: Node, generator: CodeGeneratorFile) {
             val node = node as IdentifierNode
             val file = generator.getCurrentFile()
-            val name = Helper.removePrefix(node.name)
+            val name = Helper.removePrefixAndWhiteSpace(node.name)
 
             file.write(node.name)
         }

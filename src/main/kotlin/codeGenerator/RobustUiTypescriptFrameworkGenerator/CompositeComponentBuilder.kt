@@ -3,16 +3,15 @@ package codeGenerator.RobustUiTypescriptFrameworkGenerator
 import codeGenerator.CodeGeneratorFile
 import codeGenerator.CodeGeneratorFileBuilder
 import parser.*
-import tokens.SimpleComponent
 
 class CompositeComponentBuilder {
     companion object: CodeGeneratorFileBuilder {
         override fun build(node: Node, generator: CodeGeneratorFile) {
             val node = node as CompositeComponentNode
-            val name = Helper.removePrefix(node.name)
+            val name = Helper.removePrefixAndWhiteSpace(node.name)
             var className = name
             if (node.typeLookUpTable.containsKey(node.name)) {
-                className = Helper.removePrefix(node.typeLookUpTable.get(node.name)!!)
+                className = Helper.removePrefixAndWhiteSpace(node.typeLookUpTable.get(node.name)!!)
             }
             generator.addNewStateDeclarationGroupFor(name)
             val file = generator.getCurrentFile()
@@ -25,7 +24,7 @@ class CompositeComponentBuilder {
             file.writeln("super();")
             node.children.forEach {
                 var child = it as ModuleNode
-                var label = Helper.removePrefix(child.body.name)
+                var label = Helper.removePrefixAndWhiteSpace(child.body.name)
                 var isSimpelComp = child.body is SimpleComponentNode
                 var className = node.typeLookUpTable[label]!!
                 if (isSimpelComp) {
@@ -72,7 +71,7 @@ class CompositeComponentBuilder {
 
             node.children.forEach {
                 val child = it as ModuleNode
-                val fileName = node.typeLookUpTable[Helper.removePrefix(child.body.name)]!!
+                val fileName = node.typeLookUpTable[Helper.removePrefixAndWhiteSpace(child.body.name)]!!
 
                 if (!generator.fileExists(fileName)) {
                     child.body.typeLookUpTable.put(child.body.name, fileName)
@@ -89,11 +88,11 @@ class CompositeComponentBuilder {
                         receiver.inputStreamNode.children.forEach { inputEvent ->
                             val output = outputEvent as IdentifierNode
                             val input = inputEvent as IdentifierNode
-                            val outputName = Helper.removePrefix(output.name).toLowerCase()
-                            val inputName = Helper.removePrefix(input.name).toLowerCase()
+                            val outputName = Helper.removePrefixAndWhiteSpace(output.name).toLowerCase()
+                            val inputName = Helper.removePrefixAndWhiteSpace(input.name).toLowerCase()
                             if (outputName == inputName) {
-                                val senderName = Helper.removePrefix(sender.body.name)
-                                val receiverName = Helper.removePrefix(receiver.body.name)
+                                val senderName = Helper.removePrefixAndWhiteSpace(sender.body.name)
+                                val receiverName = Helper.removePrefixAndWhiteSpace(receiver.body.name)
                                 file.writeln("(this.machines.get('$senderName') as ${lookUpTable[senderName]}).getOutputStream('$outputName').subscribe(_ => {")
                                 file.increaseIdentLevel()
                                 file.writeln("this.machines.get('$receiverName').sendInput('$inputName');")
@@ -111,7 +110,7 @@ class CompositeComponentBuilder {
 
             node.children.forEach {
                 var child = it as ModuleNode
-                var label = Helper.removePrefix(child.body.name)
+                var label = Helper.removePrefixAndWhiteSpace(child.body.name)
                 machines += "\"$label\" | "
                 machines += travelMachineDeclarations(child.body, label)
             }
@@ -133,7 +132,7 @@ class CompositeComponentBuilder {
                         else -> it
                     }
                     if (isAComponent(child)) {
-                        var label = Helper.removePrefix(child.name)
+                        var label = Helper.removePrefixAndWhiteSpace(child.name)
                         machines += "\"$namespace::$label\" | "
                         machines += travelMachineDeclarations(child, "$namespace::$label")
                     }

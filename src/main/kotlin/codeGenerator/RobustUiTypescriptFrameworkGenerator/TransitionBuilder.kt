@@ -10,8 +10,8 @@ class TransitionBuilder {
         override fun build(node: Node, generator: CodeGeneratorFile) {
             val node = node as TransitionNode;
 
-            val target = Helper.removePrefix(node.to)
-            val label = Helper.removePrefix(node.name)
+            val target = Helper.removePrefixAndWhiteSpace(node.to)
+            val label = Helper.removePrefixAndWhiteSpace(node.name)
 
             val file = generator.getCurrentFile()
 

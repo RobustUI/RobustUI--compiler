@@ -9,7 +9,7 @@ class StateBuilder {
     companion object: CodeGeneratorFileBuilder {
         override fun build(node: Node, generator: CodeGeneratorFile) {
             val node = node as StateNode;
-            var name = Helper.removePrefix(node.name)
+            var name = Helper.removePrefixAndWhiteSpace(node.name)
             val file = generator.getCurrentFile()
 
             generator.addStateDeclaration(name)

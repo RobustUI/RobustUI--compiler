@@ -8,10 +8,10 @@ class SelectiveComponentBuilder {
     companion object: CodeGeneratorFileBuilder  {
         override fun build(node: Node, generator: CodeGeneratorFile) {
             val node = node as SelectiveComponentNode
-            val name = Helper.removePrefix(Helper.removeWhitespace(node.name))
+            val name = Helper.removePrefixAndWhiteSpace(Helper.removeWhitespace(node.name))
             var className = name
             if (node.typeLookUpTable.containsKey(node.name)) {
-                className = Helper.removePrefix(node.typeLookUpTable.get(node.name)!!)
+                className = Helper.removePrefixAndWhiteSpace(node.typeLookUpTable.get(node.name)!!)
             }
             generator.addNewStateDeclarationGroupFor(name)
             val file = generator.getCurrentFile()
@@ -24,7 +24,7 @@ class SelectiveComponentBuilder {
             file.writeln("super();")
             node.children.forEach {
                 var child = it as CaseNode
-                var label = Helper.removePrefix((child.getComponent() as ModuleNode).body.name)
+                var label = Helper.removePrefixAndWhiteSpace((child.getComponent() as ModuleNode).body.name)
                 var isSimpelComp = (child.getComponent() as ModuleNode).body is SimpleComponentNode
                 var className = node.typeLookUpTable[label]!!
                 if (isSimpelComp) {
@@ -42,7 +42,7 @@ class SelectiveComponentBuilder {
             node.children.forEach {
                 currentCase++
                 var child = it as CaseNode
-                var label = Helper.removePrefix((child.getComponent() as ModuleNode).body.name)
+                var label = Helper.removePrefixAndWhiteSpace((child.getComponent() as ModuleNode).body.name)
                 if (!child.isInitial()) {
                     file.writeln("if (value ${child.getGuard().gaurd}) {")
                     file.increaseIdentLevel()
@@ -58,7 +58,7 @@ class SelectiveComponentBuilder {
                 }
             }
             if (initialCase != null) {
-                var label = Helper.removePrefix((initialCase!!.getComponent() as ModuleNode).body.name)
+                var label = Helper.removePrefixAndWhiteSpace((initialCase!!.getComponent() as ModuleNode).body.name)
 
                 file.writeln(" else {")
                 file.writeln("this.switchMachine('${label}')")
@@ -105,7 +105,7 @@ class SelectiveComponentBuilder {
 
             node.children.forEach {
                 val child = (it as CaseNode).getComponent() as ModuleNode
-                val fileName = node.typeLookUpTable[Helper.removePrefix(child.body.name)]!!
+                val fileName = node.typeLookUpTable[Helper.removePrefixAndWhiteSpace(child.body.name)]!!
 
                 if (!generator.fileExists(fileName)) {
                     child.body.typeLookUpTable.put(child.body.name, fileName)
@@ -121,7 +121,7 @@ class SelectiveComponentBuilder {
 
             node.children.forEach {
                 var child = it as CaseNode
-                var label = Helper.removePrefix((child.getComponent() as ModuleNode).body.name)
+                var label = Helper.removePrefixAndWhiteSpace((child.getComponent() as ModuleNode).body.name)
                 machines += "\"$label\" | "
                 machines += travelMachineDeclarations((child.getComponent() as ModuleNode).body, label)
             }
@@ -143,7 +143,7 @@ class SelectiveComponentBuilder {
                         else -> it
                     }
                     if (isAComponent(child)) {
-                        var label = Helper.removePrefix(child.name)
+                        var label = Helper.removePrefixAndWhiteSpace(child.name)
                         machines += "\"$namespace::$label\" | "
                         machines += travelMachineDeclarations(child, "$namespace::$label")
                     }
