@@ -20,7 +20,7 @@ class Helper {
         }
 
         fun convertPrefixToPromelaPrefix(chanName: String): String {
-            return chanName.replace(this.divider, "_____")
+            return removeWhitespace(chanName.replace(this.divider, "_____"))
         }
 
         fun retrieveRelativeNamespaceForNode(node: Node): String {
@@ -32,8 +32,8 @@ class Helper {
                 key += it
                 if (componentParent.typeLookUpTable.containsKey(key)) {
                     lastInput = componentParent.typeLookUpTable.get(key)!!
-                    if (lastInput.startsWith(destPrefix)) {
-                        lastInput = lastInput.drop(destPrefix.length)
+                    if (lastInput.startsWith(removeWhitespace(destPrefix))) {
+                        lastInput = lastInput.drop(removeWhitespace(destPrefix).length)
                     }
                 }else {
                     lastInput = it
@@ -44,11 +44,11 @@ class Helper {
             destPrefix = destPrefix.dropLast(divider.length)
             destPrefix = destPrefix.dropLast(lastInput.length)
             destPrefix = destPrefix.dropLast(divider.length)
-            return if (destPrefix.isNotEmpty()) {
+            return removeWhitespace(if (destPrefix.isNotEmpty()) {
                 destPrefix
             } else {
                 lastInput
-            }
+            })
         }
 
 

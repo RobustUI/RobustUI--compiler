@@ -10,9 +10,20 @@ class SelectiveComponentNodeBuilder {
             var node = node as SelectiveComponentNode
             val file = generator.getCurrentFile()
             var namespace = Helper.retrieveRelativeNamespaceForNode(node)
+            val componentName = if (node.typeLookUpTable.contains(node.name)) {
+                Helper.removePrefixAndWhiteSpace(node.typeLookUpTable[node.name]!!)
+            } else {
+                Helper.removePrefixAndWhiteSpace(node.name)
+            }
+
+            var path = namespace + Helper.divider  + componentName
+            if (componentName == namespace) {
+                path = componentName
+            }
+
             var initialCase: CaseNode? = null
             file.openSection("main")
-            file.writeln("active [${Helper.convertPrefixToPromelaPrefix(namespace)}_N] proctype ${Helper.convertPrefixToPromelaPrefix(namespace)}Machine() {")
+            file.writeln("active [${Helper.convertPrefixToPromelaPrefix(path)}_N] proctype ${Helper.convertPrefixToPromelaPrefix(path)}Machine() {")
             file.increaseIdentLevel()
             file.writeln("end:")
             file.writeln("if")
