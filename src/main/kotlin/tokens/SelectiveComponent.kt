@@ -65,10 +65,13 @@ data class SelectiveComponent(
         outputs.forEach {
             outputsStream.addChild(IdentifierNode(it))
         }
+        inputsStream.parent = module
+        outputsStream.parent = module
 
         module.inputStreamNode = inputsStream
         module.outputStreamNode = outputsStream
         module.body = node
+        node.parent = module
 
         return module
     }

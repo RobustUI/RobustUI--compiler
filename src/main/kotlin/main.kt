@@ -1,5 +1,6 @@
 import codeGenerator.CodeGenerator
 import codeGenerator.CodeGeneratorFile
+import codeGenerator.PromelaGenerator.PromelaGenerator
 import codeGenerator.QTreeGenerator.QTreeGenerator
 import codeGenerator.RobustUiTypescriptFrameworkGenerator.RobustUiTypescriptFrameworkGenerator
 import codeGenerator.TreantJSGenerator.TreantJSGenerator
@@ -66,6 +67,7 @@ fun main(args: Array<String>) = mainBody {
         "typescript" -> RobustUiTypescriptFrameworkGenerator(parser)
         "treeant" -> TreantJSGenerator(parser)
         "qtree" -> QTreeGenerator(parser)
+        "promela" -> PromelaGenerator(parser)
         else -> throw Exception("Unknown Target !")
     }
 

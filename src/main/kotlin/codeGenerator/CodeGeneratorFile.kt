@@ -1,6 +1,5 @@
 package codeGenerator
 
-import codeGenerator.RobustUiTypescriptFrameworkGenerator.OutputFile
 import parser.Node
 import parser.SymbolContext
 
@@ -18,5 +17,7 @@ interface CodeGeneratorFile: GenericGenerator {
     fun closeCurrentFile()
     fun getCurrentFile(): OutputFile
     fun getMessageTableFor(componentIdentifier: String, type: String): List<String>
+    fun getMessageTypeFor(transitionLabelNamespace: String): String
     fun fileExists(fileName: String): Boolean
+    fun incrementFileInstance(filename: String)
 }

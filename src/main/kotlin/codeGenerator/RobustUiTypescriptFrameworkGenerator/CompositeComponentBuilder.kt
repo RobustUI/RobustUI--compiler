@@ -2,6 +2,7 @@ package codeGenerator.RobustUiTypescriptFrameworkGenerator
 
 import codeGenerator.CodeGeneratorFile
 import codeGenerator.CodeGeneratorFileBuilder
+import codeGenerator.OutputFile
 import parser.*
 
 class CompositeComponentBuilder {

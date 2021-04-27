@@ -1,28 +1,32 @@
-package codeGenerator.RobustUiTypescriptFrameworkGenerator
+package codeGenerator.PromelaGenerator
 
+import codeGenerator.CodeGenerator
 import codeGenerator.CodeGeneratorFile
 import codeGenerator.OutputFile
 import parser.*
 import java.lang.Exception
 import java.util.*
 
-class RobustUiTypescriptFrameworkGenerator(val parser: Parser): CodeGeneratorFile {
+class PromelaGenerator(val parser: Parser): CodeGeneratorFile {
+
     init {
         Helper.divider = parser.nameDivider
     }
 
-    override val states: MutableMap<String, MutableList<String>> = mutableMapOf()
     private val files: MutableMap<String, OutputFile> = mutableMapOf()
     private val openedFiles: Stack<OutputFile> = Stack()
     private var currentStateList: Stack<MutableList<String>> = Stack()
+    private var numOfFileInstances: MutableMap<String, Int> = mutableMapOf()
+
+    override val states: MutableMap<String, MutableList<String>> = mutableMapOf()
+
+    override fun addStateDeclaration(state: String) {
+        this.currentStateList.peek().add(state)
+    }
 
     override fun addNewStateDeclarationGroupFor(name: String) {
         this.states.put(name, mutableListOf())
         this.currentStateList.push(this.states.get(name)!!)
-    }
-
-    override fun addStateDeclaration(state: String) {
-        this.currentStateList.peek().add(state)
     }
 
     override fun closeCurrentStateDeclarationGroup() {
@@ -30,7 +34,7 @@ class RobustUiTypescriptFrameworkGenerator(val parser: Parser): CodeGeneratorFil
     }
 
     override fun getSymbolContext(nodeName: String): SymbolContext {
-        return parser.symbolTable.get(nodeName)!!.copy()
+        return parser.symbolTable[nodeName]!!.copy()
     }
 
     override fun getInitialState(name: String): String {
@@ -47,58 +51,68 @@ class RobustUiTypescriptFrameworkGenerator(val parser: Parser): CodeGeneratorFil
     }
 
     override fun generate(): Map<String, OutputFile> {
-        visit(parser.root)
+       var file = ""
 
-        return files
+       file += visit(parser.root)
+
+       return files
     }
 
     override fun buildFile(file: OutputFile): String {
         val sections = file.getAllSections()
-        var output = "";
-        output += if (sections["imports"] != null) {
-            sections["imports"]
+        var ret = ""
+
+        ret += if (sections["defines"] != null) {
+            sections["defines"]
         } else {
             ""
         }
-        output += if (sections["declarations"] != null) {
+
+        ret += if (sections["channelDefinitions"] != null) {
+            sections["channelDefinitions"]
+        } else {
+            ""
+        }
+
+        ret += if (sections["declarations"] != null) {
             sections["declarations"]
         } else {
             ""
         }
 
-        output += if (sections["topMainClass"] != null) {
-            sections["topMainClass"]
+        ret += if (sections["main"] != null) {
+            sections["main"]
         } else {
             ""
         }
 
-        output += if (sections["middleMainClass"] != null) {
-            sections["middleMainClass"]
+        ret += if (sections["environment"] != null) {
+            sections["environment"]
         } else {
             ""
         }
 
-        output += if (sections["bottomMainClass"] != null) {
-            sections["bottomMainClass"]
+        ret += if (sections["browserEnvironment"] != null) {
+            sections["browserEnvironment"]
         } else {
             ""
         }
 
-        return output
+        return ret
     }
 
     override fun visit(node: Node) {
         when(node) {
-            is ModuleNode -> ModuleBuilder.build(node,this)
-            is SimpleComponentNode -> ComponentBuilder.build(node, this)
-            is CompositeComponentNode -> CompositeComponentBuilder.build(node, this)
-            is SelectiveComponentNode -> SelectiveComponentBuilder.build(node, this)
-            is StateNode -> StateBuilder.build(node, this)
-            is TransitionNode -> TransitionBuilder.build(node, this)
+            is ModuleNode -> ModuleBuilder.build(node, this)
+            is SimpleComponentNode -> SimpleComponentBuilder.build(node, this)
+            is StateNode -> StateNodeBuilder.build(node, this)
+            is TransitionNode -> TransitionNodeBuilder.build(node, this)
+            is StreamNode -> StreamNodeBuilder.build(node, this)
+            is IdentifierNode -> IdentifierNodeBuilder.build(node, this)
+            is CompositeComponentNode -> CompositeComponentNodeBuilder.build(node, this)
+            is SelectiveComponentNode -> SelectiveComponentNodeBuilder.build(node, this)
             is CaseNode -> CaseNodeBuilder.build(node, this)
-            is StreamNode -> StreamBuilder.build(node, this)
-            is IdentifierNode -> IdentifierBuilder.build(node, this)
-            else -> throw Exception("RobustUiTypescriptFrameworkGenerator Exception: Could not code generate: $node")
+            else -> throw Exception("PromelaGenerator Exception: Could not code generate: $node")
         }
     }
 
@@ -106,6 +120,7 @@ class RobustUiTypescriptFrameworkGenerator(val parser: Parser): CodeGeneratorFil
         val newfile = OutputFile(fileName)
         files.set(fileName, newfile)
         openedFiles.push(newfile)
+        this.numOfFileInstances[fileName] = 1
         return getCurrentFile()
     }
 
@@ -119,14 +134,11 @@ class RobustUiTypescriptFrameworkGenerator(val parser: Parser): CodeGeneratorFil
     }
 
     override fun getMessageTableFor(componentIdentifier: String, type: String): List<String> {
-        return this.parser.messageTable.filter {
-            it.key.split(componentIdentifier+this.parser.nameDivider).size == 2 &&
-            it.value.equals(type, ignoreCase = true)
-        }.map { it.key }
+        TODO("Not yet implemented")
     }
 
     override fun getMessageTypeFor(transitionLabelNamespace: String): String {
-        TODO("Not yet implemented")
+        return this.parser.messageTable.get(transitionLabelNamespace)!!
     }
 
     override fun fileExists(fileName: String): Boolean {
@@ -134,12 +146,15 @@ class RobustUiTypescriptFrameworkGenerator(val parser: Parser): CodeGeneratorFil
     }
 
     override fun incrementFileInstance(filename: String) {
-        TODO("Not yet implemented")
+        this.numOfFileInstances[filename] = this.numOfFileInstances[filename]!! + 1
     }
 
     override fun compileOutputAsString(): String {
         var result = ""
         val files = this.generate()
+        this.numOfFileInstances.forEach{name, num ->
+            result += "#define ${Helper.convertPrefixToPromelaPrefix(name)}_N $num\n"
+        }
 
         files.forEach {
             result += this.buildFile(it.value);

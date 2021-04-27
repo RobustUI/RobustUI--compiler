@@ -1,4 +1,4 @@
-package codeGenerator.RobustUiTypescriptFrameworkGenerator
+package codeGenerator
 
 import java.util.*
 
@@ -28,10 +28,16 @@ class OutputFile(val fileName: String) {
         if (currentSectionName != null) {
             sections[currentSectionName!!] = currentSection
         }
-        val previousSection = this.openedSections.pop()
+        this.openedSections.pop()
+        if (this.openedSections.isNotEmpty()) {
+            val previousSection = this.openedSections.peek()
+            this.currentSection = sections[previousSection]!!
+            this.currentSectionName = previousSection;
+        }else {
+            this.currentSection = ""
+            this.currentSectionName = null
+        }
 
-        this.currentSection = sections[previousSection]!!
-        this.currentSectionName = previousSection;
     }
 
     fun closeCurrentSection() {

@@ -43,6 +43,7 @@ data class SimpleComponent(
 
         states.forEach {
             val renamed = it.copy(label = parser.addPrefix(it.label))
+            root.typeLookUpTable.put(renamed.label, it.label)
             val node = parser.parse(renamed)
             root.addChild(node)
 
@@ -63,6 +64,9 @@ data class SimpleComponent(
         var inputsStream: StreamNode = StreamNode("inputs")
         var outputsStream: StreamNode = StreamNode("outputs")
         var eventsStream: StreamNode = StreamNode("events")
+        inputsStream.parent = module
+        outputsStream.parent = module
+        eventsStream.parent = module
 
         inputs.forEach {
             inputsStream.addChild(IdentifierNode(it))
@@ -80,6 +84,7 @@ data class SimpleComponent(
         module.outputStreamNode = outputsStream
         module.eventStreamNode = eventsStream
         module.body = root
+        root.parent = module
 
         return module
     }

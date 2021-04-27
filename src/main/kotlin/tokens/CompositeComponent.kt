@@ -59,6 +59,7 @@ data class CompositeComponent(
         module.inputStreamNode = inputsStream
         module.outputStreamNode = outputsStream
         module.body = root
+        root.parent = module
 
         return module
     }
