@@ -17,17 +17,9 @@ class MainClassExtraBody {
                     "\n" +
                     "        this.initialize();\n" +
                     "    }\n" +
-                    "\n" +
-                    "    public registerElement(element: HTMLElement): void {\n"
+                    "\n"
 
-            events.forEach {
-                content += "        element.addEventListener(\"$it\", function() {\n" +
-                        "            this.transition(\"$it\");\n" +
-                        "        }.bind(this));\n"
-            }
-
-            content += "    }\n" +
-                    "\n" +
+            content += "\n" +
                     "    public getOutputStream(label: ${className}OutputStreams): Observable<any> {\n" +
                     "        return super.getOutputStream(label);\n" +
                     "    }\n" +
